@@ -12,8 +12,8 @@
 #define WORKSET_LIMIT 4
 #define FRAME_LIMIT 16
 #define VIRTUAL_MEMORY_SIZE 200
-#define THREAD_LIMIT 10
-#define PAGE_LIMIT 5
+#define THREAD_LIMIT 16
+#define PAGE_LIMIT 32
 
 struct Page
 {
@@ -28,8 +28,6 @@ struct Process
     struct Page page_list[PAGE_LIMIT];
 };
 
-int page_queue[FRAME_LIMIT];
-
 int number_of_process = 0;
 struct Process process_list[THREAD_LIMIT];
 
@@ -40,7 +38,7 @@ struct Page virtual_memory[VIRTUAL_MEMORY_SIZE];
 pthread_t thread[THREAD_LIMIT];
 pthread_mutex_t memory_lock;
 
-int teste = 0;
+int page_queue[FRAME_LIMIT];
 
 // Gerenciador de memória
 void reset_main_memory();
@@ -80,21 +78,17 @@ int main( int argc, char *argv[ ] ){
 }
 
 void* execute_process(int id){
-	pthread_mutex_lock(&memory_lock);
-	request_page(id, 0);
-	print_main_memory();
-	pthread_mutex_unlock(&memory_lock);
-
-
-	pthread_mutex_lock(&memory_lock);
-	request_page(id, 3);
-	print_main_memory();
-	pthread_mutex_unlock(&memory_lock);
-	// int i;
-	// for(i = 0; i < THREAD_LIMIT; i++)
-	// {
-	// 	request_page(id);
-	// }
+	int i;
+	for(i = 0; i < PAGE_LIMIT; i++){
+		pthread_mutex_lock(&memory_lock);
+		//sleep(1);
+		system("clear");
+		printf("--->Entrando com PID: %d e Pagina: %d\n", id, i);
+		request_page(id, i);
+		print_main_memory();
+		pthread_mutex_unlock(&memory_lock);
+		sleep(1);
+	}
 }
 
 int create_process(){
@@ -108,7 +102,6 @@ int create_process(){
 }
 
 void request_page(int process_id, int page_number){
-	//srand(time(NULL));
 	int i;
 	for (i = 0; i < FRAME_LIMIT; i++){
 		if(main_memory[i].process_id == -1){
@@ -118,8 +111,21 @@ void request_page(int process_id, int page_number){
 		}
 	}
 	printf("------------>CABOU MEMORIA :( \n");
-	return;
+	
+	int pid = page_queue[0]/PAGE_LIMIT;
+	int pageN = page_queue[0]%PAGE_LIMIT;
+	int frame;
+
+	for (i = 0; i < FRAME_LIMIT; i++){
+		if(main_memory[i].process_id == pid && main_memory[i].number == pageN){
+			frame = i;
+		}
+	}
+
+	main_memory[frame] = process_list[process_id].page_list[page_number];
+	add_page_to_queue(PAGE_LIMIT * process_id + main_memory[frame].number);
 	//FAZER LRU
+	return;
 }
 
 void print_main_memory()
@@ -131,10 +137,15 @@ void print_main_memory()
 		else
 			printf("Frame: %d Vazio\n", i);
 	}
-	// printf("Fila:\n");
-	// for (i = 0; i < FRAME_LIMIT; i++){
-	// 	printf("---> %d: Processo: %d -> Page: %d.\n", i, page_queue[i]/PAGE_LIMIT, page_queue[i]%PAGE_LIMIT);
-	// }
+	printf("Fila:\n");
+	for (i = 0; i < FRAME_LIMIT; i++){
+		if(i == 0) 
+			printf("Sai ----> %d: Processo: %d -> Page: %d.\n", i, page_queue[i]/PAGE_LIMIT, page_queue[i]%PAGE_LIMIT);
+		else if(i == FRAME_LIMIT -1)
+			printf("Entra --> %d: Processo: %d -> Page: %d.\n", i, page_queue[i]/PAGE_LIMIT, page_queue[i]%PAGE_LIMIT);
+		else
+			printf("--------> %d: Processo: %d -> Page: %d.\n", i, page_queue[i]/PAGE_LIMIT, page_queue[i]%PAGE_LIMIT);
+	}
 }
 
 void initialize_page_list_of_process(int size, int process_id){
@@ -155,13 +166,13 @@ void reset_main_memory(){
 
 void add_page_to_queue(int newPage){
 	shift_queue(0);
-	page_queue[FRAME_LIMIT] = newPage;
+	page_queue[FRAME_LIMIT - 1] = newPage;
 }
 
 void refresh_queue(int page){
 	int offSet = get_queue_offset(page);
 	shift_queue(offSet);
-	page_queue[FRAME_LIMIT] = page;
+	page_queue[FRAME_LIMIT - 1] = page;
 }
 
 void shift_queue(int offSet){
