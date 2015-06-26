@@ -6,14 +6,15 @@
 #include 	<stdlib.h>
 //#include 	<time.h>
 #include	<pthread.h>
+#include <sched.h>
 //#include	<sys/timeb.h>
 //#include <sys/wait.h>
 
 #define WORKSET_LIMIT 4
 #define FRAME_LIMIT 16
 #define VIRTUAL_MEMORY_SIZE 200
-#define THREAD_LIMIT 16
-#define PAGE_LIMIT 32
+#define THREAD_LIMIT 10
+#define PAGE_LIMIT 10
 
 struct Page
 {
@@ -37,6 +38,7 @@ struct Page virtual_memory[VIRTUAL_MEMORY_SIZE];
 
 pthread_t thread[THREAD_LIMIT];
 pthread_mutex_t memory_lock;
+pthread_mutex_t process_list_lock;
 
 int page_queue[FRAME_LIMIT];
 
@@ -63,10 +65,15 @@ int main( int argc, char *argv[ ] ){
         printf("\n mutex init failed\n");
         return 1;
     }
+    if (pthread_mutex_init(&process_list_lock, NULL) != 0) {
+        printf("\n mutex init failed\n");
+        return 1;
+    }
 
 	int i;
 	for(i = 0; i < THREAD_LIMIT; i++){
 		pthread_create(&thread[i], NULL, execute_process, create_process());
+		sleep(2);
 	}
 
 	for(i = 0; i < THREAD_LIMIT; i++){
@@ -81,22 +88,33 @@ void* execute_process(int id){
 	int i;
 	for(i = 0; i < PAGE_LIMIT; i++){
 		pthread_mutex_lock(&memory_lock);
-		//sleep(1);
+		usleep(500000);
 		system("clear");
 		printf("--->Entrando com PID: %d e Pagina: %d\n", id, i);
 		request_page(id, i);
 		print_main_memory();
 		pthread_mutex_unlock(&memory_lock);
-		sleep(1);
+		usleep(0); //Troca de contexto
 	}
+
+
+
+	pthread_mutex_lock(&memory_lock);
+	system("clear");
+	printf("--->Parando processo com PID: %d\n", id);
+	stop_process(id);
+	print_main_memory();
+	pthread_mutex_unlock(&memory_lock);
 }
 
 int create_process(){
 	struct Process _process;
+	pthread_mutex_lock(&process_list_lock);
 	_process.id = number_of_process;
 	process_list[_process.id] = _process;
-	initialize_page_list_of_process(PAGE_LIMIT, number_of_process);
 	number_of_process++;
+	pthread_mutex_unlock(&process_list_lock);
+	initialize_page_list_of_process(PAGE_LIMIT, number_of_process - 1);
 
 	return _process.id;
 }
@@ -110,7 +128,7 @@ void request_page(int process_id, int page_number){
 			return;
 		}
 	}
-	printf("------------>CABOU MEMORIA :( \n");
+	printf("------------>MEMORIA CHEIA :( \n");
 	
 	int pid = page_queue[0]/PAGE_LIMIT;
 	int pageN = page_queue[0]%PAGE_LIMIT;
@@ -154,6 +172,15 @@ void initialize_page_list_of_process(int size, int process_id){
 	{
 		process_list[process_id].page_list[i].process_id = process_id;
 		process_list[process_id].page_list[i].number = i;
+	}
+}
+
+void stop_process(int process_id){
+	int i;
+	for (i = 0; i < FRAME_LIMIT; i++){
+		if(main_memory[i].process_id == process_id){
+			main_memory[i].process_id = -1;
+		}
 	}
 }
 
