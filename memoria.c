@@ -16,6 +16,16 @@
 #define THREAD_LIMIT 10
 #define PAGE_LIMIT 10
 
+//print colorido 
+//exemplo  printf(ANSI_COLOR_RED     "This text is RED!"     ANSI_COLOR_RESET "\n");
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_GREEN   "\x1b[32m"
+#define ANSI_COLOR_YELLOW  "\x1b[33m"
+#define ANSI_COLOR_BLUE    "\x1b[34m"
+#define ANSI_COLOR_MAGENTA "\x1b[35m"
+#define ANSI_COLOR_CYAN    "\x1b[36m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
+
 struct Page
 {
 	int process_id;
@@ -31,7 +41,10 @@ struct Process
 
 int number_of_process = 0;
 struct Process process_list[THREAD_LIMIT];
-
+int running_process[THREAD_LIMIT]= { [0 ... THREAD_LIMIT-1 ] = -1 }; 
+int running_process_index =0;
+int stopped_process[THREAD_LIMIT] = { [0 ... THREAD_LIMIT-1 ] = -1 }; 
+int stopped_process_index=0;
 //int number_of_free_frames = FRAME_LIMIT;
 struct Page main_memory[FRAME_LIMIT];
 struct Page virtual_memory[VIRTUAL_MEMORY_SIZE];
@@ -48,6 +61,7 @@ void request_page(int process_id, int page_number);
 int create_process();
 void* execute_process(int id);
 void initialize_page_list_of_process(int size, int process_id);
+void running_process_processes();
 
 //Queue functions
 void add_page_to_queue(int newPage);
@@ -81,6 +95,12 @@ int main( int argc, char *argv[ ] ){
 	}
 
 	pthread_mutex_destroy(&memory_lock);
+
+	system("clear");
+	running_process_processes(); 
+	print_main_memory();
+
+
 	return 0;
 }
 
@@ -90,6 +110,7 @@ void* execute_process(int id){
 		pthread_mutex_lock(&memory_lock);
 		usleep(500000);
 		system("clear");
+		running_process_processes();
 		printf("--->Entrando com PID: %d e Pagina: %d\n", id, i);
 		request_page(id, i);
 		print_main_memory();
@@ -100,10 +121,10 @@ void* execute_process(int id){
 
 
 	pthread_mutex_lock(&memory_lock);
-	system("clear");
-	printf("--->Parando processo com PID: %d\n", id);
+	//system("clear");
+	printf("---------------------------->Parando processo com PID: %d\n", id);
 	stop_process(id);
-	print_main_memory();
+	//print_main_memory();
 	pthread_mutex_unlock(&memory_lock);
 }
 
@@ -113,6 +134,8 @@ int create_process(){
 	_process.id = number_of_process;
 	process_list[_process.id] = _process;
 	number_of_process++;
+	running_process[running_process_index] = _process.id;
+	running_process_index++;
 	pthread_mutex_unlock(&process_list_lock);
 	initialize_page_list_of_process(PAGE_LIMIT, number_of_process - 1);
 
@@ -177,6 +200,10 @@ void initialize_page_list_of_process(int size, int process_id){
 
 void stop_process(int process_id){
 	int i;
+	stopped_process[stopped_process_index] = process_id;
+	stopped_process_index++;
+	for (i=0; i<THREAD_LIMIT;i++) if (running_process[i] == process_id) running_process[i] = -1;
+
 	for (i = 0; i < FRAME_LIMIT; i++){
 		if(main_memory[i].process_id == process_id){
 			main_memory[i].process_id = -1;
@@ -217,4 +244,19 @@ int get_queue_offset(int page){
 	    if(page_queue[i] == page)
 	    	return i;
 	}
+}
+
+void running_process_processes(){
+	int i;
+	printf(ANSI_COLOR_YELLOW "Estamos executando os processos: \n"ANSI_COLOR_RESET);
+	for (i=0; i<THREAD_LIMIT;i++)
+		if (running_process[i] > -1) 
+			printf(ANSI_COLOR_YELLOW "%i "ANSI_COLOR_RESET,running_process[i]);
+	printf("\n");
+	printf(ANSI_COLOR_GREEN "Os seguintes processos terminaram: \n" ANSI_COLOR_RESET);
+	for (i=0; i<THREAD_LIMIT;i++)
+		if (stopped_process[i] >-1) 
+			printf(ANSI_COLOR_GREEN "%i " ANSI_COLOR_RESET,stopped_process[i]);
+
+	printf("\n\n");
 }
