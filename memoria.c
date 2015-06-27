@@ -6,18 +6,19 @@
 #include 	<stdlib.h>
 //#include 	<time.h>
 #include	<pthread.h>
-#include <sched.h>
+#include 	<sched.h>
 //#include	<sys/timeb.h>
 //#include <sys/wait.h>
 
-#define WORKSET_LIMIT 4
-#define FRAME_LIMIT 16
-#define VIRTUAL_MEMORY_SIZE 200
-#define THREAD_LIMIT 10
-#define PAGE_LIMIT 10
+#define WORKSET_LIMIT 4/2
+#define FRAME_LIMIT 16/2
+#define VIRTUAL_MEMORY_SIZE 200/2
+#define THREAD_LIMIT 10/2
+#define PAGE_LIMIT 10/2
 
 //print colorido 
-//exemplo  printf(ANSI_COLOR_RED     "This text is RED!"     ANSI_COLOR_RESET "\n");
+//exemplo  
+//printf(ANSI_COLOR_RED     "This text is RED!"     ANSI_COLOR_RESET "\n");
 #define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_GREEN   "\x1b[32m"
 #define ANSI_COLOR_YELLOW  "\x1b[33m"
@@ -41,7 +42,7 @@ struct Process
 
 int number_of_process = 0;
 struct Process process_list[THREAD_LIMIT];
-int running_process[THREAD_LIMIT]= { [0 ... THREAD_LIMIT-1 ] = -1 }; 
+int running_process[THREAD_LIMIT] = { [0 ... THREAD_LIMIT-1 ] = -1 }; 
 int running_process_index =0;
 int stopped_process[THREAD_LIMIT] = { [0 ... THREAD_LIMIT-1 ] = -1 }; 
 int stopped_process_index=0;
@@ -56,12 +57,14 @@ pthread_mutex_t process_list_lock;
 int page_queue[FRAME_LIMIT];
 
 // Gerenciador de memória
+void print_main_memory();
 void reset_main_memory();
 void request_page(int process_id, int page_number);
 int create_process();
 void* execute_process(int id);
 void initialize_page_list_of_process(int size, int process_id);
 void running_process_processes();
+void stop_process(int process_id);
 
 //Queue functions
 void add_page_to_queue(int newPage);
@@ -151,7 +154,8 @@ void request_page(int process_id, int page_number){
 			return;
 		}
 	}
-	printf("------------>MEMORIA CHEIA :( \n");
+	printf(ANSI_COLOR_RED "------------> MEMORIA CHEIA :( \n" ANSI_COLOR_RESET);
+
 	
 	int pid = page_queue[0]/PAGE_LIMIT;
 	int pageN = page_queue[0]%PAGE_LIMIT;
@@ -173,7 +177,7 @@ void print_main_memory()
 {
 	int i;
 	for (i = 0; i < FRAME_LIMIT; i++){
-		if(main_memory[i].process_id != -1)
+		if(main_memory[i].process_id > -1)
 			printf("Frame: %d -> Processo: %d -> Page: %d.\n", i, main_memory[i].process_id, main_memory[i].number);
 		else
 			printf("Frame: %d Vazio\n", i);

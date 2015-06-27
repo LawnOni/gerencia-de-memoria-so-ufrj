@@ -2,7 +2,7 @@ all:
 	@echo ____________________________________________________________________Cria
 	clear all
 	@echo ____________________________________________________________________compila
-	@gcc memoria.c -o memoria -lpthread -w -Wall
+	@gcc memoria.c -o memoria -lpthread 
 	ls
 	@echo ____________________________________________________________________Executa
 	./memoria
@@ -10,5 +10,5 @@ all:
 	
 
 clean: 
-	rm a.out 
+	rm a.out memoria
 
