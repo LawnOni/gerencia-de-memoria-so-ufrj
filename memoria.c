@@ -204,7 +204,7 @@ void print_memorys(){
 
 
 	//// **verificar porque nao esta saindo no print
-	print_queue_details();	
+	//print_queue_details();	
 }
 
 void initialize_page_list_of_process(int size, int process_id){
