@@ -21,7 +21,7 @@
 
 #define WORKSET_LIMIT 4*MULTIPLUS
 #define FRAME_LIMIT 16*MULTIPLUS
-#define VIRTUAL_MEMORY_SIZE FRAME_LIMIT //200
+#define VIRTUAL_MEMORY_SIZE 2*FRAME_LIMIT //200
 #define THREAD_LIMIT 10*MULTIPLUS
 #define PAGE_LIMIT 10*MULTIPLUS
 
@@ -49,7 +49,6 @@ int stopped_process_index=0;
 
 //LRU 
 int recent_frame[FRAME_LIMIT] = { [0 ... FRAME_LIMIT-1 ] = -1 }; 
-int non_recent_frame_index = FRAME_LIMIT;
 int number_of_free_frames = FRAME_LIMIT;
 int number_of_non_free_frames = 0;
 

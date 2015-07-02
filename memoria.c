@@ -2,12 +2,13 @@
 //Luan Cerqueira Martins
 //T2 SO 2015.1 ProfValeria
 
-#define MULTIPLUS 1
-#define SLEEP_TIME 500000/2
+#define MULTIPLUS 1 //multiplicador para alterar facilmente/proporcionalmente o tamanho das threads e memorias 
+#define SLEEP_TIME 500000 
 
 #include "memoria.h"
 
-	
+
+//ao terminar lembrar de colocar argumentos: como os tamanhos e o sleep time	
 int main( int argc, char *argv[ ] ){
 	reset_main_memory();
  	reset_virtual_memory();
@@ -22,6 +23,7 @@ int main( int argc, char *argv[ ] ){
         return 1;
     }
 
+    //inicia threads
 	int i;
 	for(i = 0; i < THREAD_LIMIT; i++){
 		pthread_create(&thread[i], NULL, execute_process, create_process());
@@ -34,7 +36,7 @@ int main( int argc, char *argv[ ] ){
 
 	pthread_mutex_destroy(&memory_lock);
 
-	print_queue();
+	//printa situação final
 	system("clear");
 	print_memorys();
 
@@ -45,18 +47,10 @@ int main( int argc, char *argv[ ] ){
 void* execute_process(int id){
 	int i;
 	for(i = 0; i < PAGE_LIMIT; i++){
-		// while (number_of_free_frames ==0) {  		
-		// 	pthread_mutex_lock(&memory_lock);
-		// 	system("clear");
-		// 	print_memorys(); 
-		// 	pthread_mutex_unlock(&memory_lock);
-		// 	usleep(1000000);
-		// }
 		pthread_mutex_lock(&memory_lock);
 		usleep(SLEEP_TIME);
 		system("clear");
 		printf("--->Entrando com PID: %d e Pagina: %d\n", id, i);
-		//if ( request_page(id, i) == 1 ) i--;
 		request_page(id, i);
 		print_memorys();
 		pthread_mutex_unlock(&memory_lock);
@@ -67,10 +61,10 @@ void* execute_process(int id){
 
 
 	pthread_mutex_lock(&memory_lock);
-	//system("clear");
+	system("clear");
 	printf(ANSI_COLOR_RED"\n\t---->Parando processo com PID: %d\n"ANSI_COLOR_RESET, id);
 	stop_process(id);
-	//print_memorys();
+	print_memorys();
 	pthread_mutex_unlock(&memory_lock);
 }
 
@@ -89,34 +83,32 @@ int create_process(){
 }
 
 void request_page(int process_id, int page_number){
-	int i,j,k;
-	bool pula=false;
-	int frame=FRAME_LIMIT-1;
-	int pg;
+	int i,j;
+	bool faz=true;
+	int frame=FRAME_LIMIT-1;//por padrao, em caso de erro, remover o ultimo frame da lista para a virtual
 	
-	
-	
-	//se ha frames vazios
+
+	//verifica se ha frames vazios
 	if (number_of_free_frames > 0){
 		for (i = 0; i < FRAME_LIMIT; i++){
 			if(main_memory[i].process_id == -1){
-				frame=i;
+				frame=i; //atribui a variavel frame o valor do frame vazio
+
 				//atualiza a lista de frames recentemente utilizados
+				//evita que na lista de frames ocorra o mesmo frame duas vezes
+				//por exemplo, ao atualizar o frame 2 a LRU 23210 esta errada, o certo é 2310
 				for (i = 0; i<FRAME_LIMIT; i++) {
 					if(recent_frame[i]==frame){
-						for (j = i; j > 0; j--) { 
-							recent_frame[j]=recent_frame[j-1];
-							//if(non_recent_frame_index != FRAME_LIMIT-1)non_recent_frame_index++;
-						}
-						recent_frame[0]=frame;
-						pula=true;	
+						for (j = i; j > 0; j--)	recent_frame[j]=recent_frame[j-1]; //remove copias da lista
+						recent_frame[0]=frame;//insere o atual
+						faz=false;	//marca que ja foi feita a atualizacao e a insercao
 					}
 				}
 
-				if (!pula){
+				//caso nao tenha nenhum outro igual na lista fazer a insercao na fila e o refresh
+				if (faz){
 					for (i = FRAME_LIMIT-1; i > 0; i--) { 
 						recent_frame[i] = recent_frame[i-1];
-						//if(non_recent_frame_index != FRAME_LIMIT-1)non_recent_frame_index++;
 					}
 					recent_frame[0] = frame;
 				 }
@@ -124,9 +116,9 @@ void request_page(int process_id, int page_number){
 			}
 		}
 
-		//insere na memoria principal
-		main_memory[frame] = process_list[process_id].page_list[page_number];
-		add_page_to_queue(PAGE_LIMIT * process_id + main_memory[frame].number);
+		// //insere na memoria principal
+		// main_memory[frame] = process_list[process_id].page_list[page_number];
+		// add_page_to_queue(PAGE_LIMIT * process_id + main_memory[frame].number);
 	}
 
 	else{
@@ -137,29 +129,26 @@ void request_page(int process_id, int page_number){
 		}
 
 		if(recent_frame[FRAME_LIMIT-1] != -1) { 
-			virtual_memory[0] = main_memory[ recent_frame[FRAME_LIMIT-1] ];
-			frame=recent_frame[FRAME_LIMIT-1];
 
 			for (i = 0; i<FRAME_LIMIT; i++) {
-					if(recent_frame[i]==frame){
+					if(recent_frame[i]==recent_frame[FRAME_LIMIT-1]){ //atualiza o LRU, e remove copias da fila antes de inserir
 						for (j = i; j > 0; j--) { 
 							recent_frame[j]=recent_frame[j-1];
 						}
-						recent_frame[0]=frame;
-						pula=true;	
+						recent_frame[0]=recent_frame[FRAME_LIMIT-1]; //roda, o ultimo vira o primeiro
 					}
 				}
-
-			non_recent_frame_index--;	
+			//COPIA PARA A MEMORIA VIRTUAL O FRAME Q SAIRA
+			virtual_memory[0] = main_memory[ recent_frame[FRAME_LIMIT-1] ];
 		}
 
-		//insere na memoria principal
-		main_memory[ recent_frame[FRAME_LIMIT-1] ] = process_list[process_id].page_list[page_number];
-		add_page_to_queue(PAGE_LIMIT * process_id + main_memory[frame].number);
+		//atualiza o valor do frame a ser retirado da memoria principal
+		frame=recent_frame[FRAME_LIMIT-1];
 	}
-
-
 	
+	//insere na memoria principal
+	main_memory[frame] = process_list[process_id].page_list[page_number];
+	add_page_to_queue(PAGE_LIMIT * process_id + main_memory[frame].number);
  }
 
 void print_memorys(){
@@ -168,6 +157,9 @@ void print_memorys(){
 	int i;
 	number_of_non_free_frames = 0;
 	number_of_free_frames = 0;
+
+	printf("\nMEMORIA PRINCIPAL\t\t\t\tMEMORIA VIRTUAL\n");
+	printf("_________________\t\t\t\t_______________\n");
 
 	for (i = 0; i < FRAME_LIMIT; i++){
 		if(main_memory[i].process_id > -1){
@@ -191,8 +183,10 @@ void print_memorys(){
 
 	for (i = FRAME_LIMIT+1; i < VIRTUAL_MEMORY_SIZE; i++){
 		
-		printf("\t\t\t\t\t\t");
-
+		if (i== FRAME_LIMIT+4) printf(ANSI_COLOR_RED "LIVRES: %2i\t\t\t\t\t"ANSI_COLOR_RESET,number_of_free_frames); 
+		else if (i== FRAME_LIMIT+5) printf(ANSI_COLOR_RED"CHEIOS: %2i\t\t\t\t\t"ANSI_COLOR_RESET, number_of_non_free_frames);
+		else 	printf("\t\t\t\t\t\t");
+	
 		if(virtual_memory[i].process_id > -1){
 			printf("Frame: %d -> Processo: %d -> Page: %d.\n", i, virtual_memory[i].process_id, virtual_memory[i].number);
 		}
@@ -204,8 +198,7 @@ void print_memorys(){
 
 	print_LRUF();
 
-	printf(ANSI_COLOR_CYAN"\n------------------- LIVRES: %2i // CHEIOS: %2i -------------------\n\n" ANSI_COLOR_RESET, number_of_free_frames, number_of_non_free_frames);
-	if ( (number_of_non_free_frames + number_of_free_frames) != FRAME_LIMIT) exit(0);
+	if ( (number_of_non_free_frames + number_of_free_frames) != FRAME_LIMIT) { printf("Erro em  qtdade frames"); exit(0);}
 
 	print_queue_details();	
 }
@@ -308,6 +301,7 @@ void print_queue_details(){
 
 void print_LRUF(){
 	int i;
-	printf("LRUF - Last Recent Used Frames: [new -> old]\n");
+	printf("LRUF - Last Recent Used Frames: [new .. old]\n");
 	for(i=0;i<FRAME_LIMIT;i++) printf("  %i", recent_frame[i]);
+	printf("\n");	
 }
