@@ -196,19 +196,15 @@ void print_memorys(){
 
 	}
 
-	for (i = 2*FRAME_LIMIT+1; i < VIRTUAL_MEMORY_SIZE; ++i)
-	{
-			
-
-	}
-
 
 
 	print_LRUF();
 
 	if ( (number_of_non_free_frames + number_of_free_frames) != FRAME_LIMIT) { printf("Erro em  qtdade frames"); exit(0);}
 
-	//print_queue_details();	
+
+	//// **verificar porque nao esta saindo no print
+	print_queue_details();	
 }
 
 void initialize_page_list_of_process(int size, int process_id){
@@ -296,20 +292,20 @@ void print_queue(){
 
 void print_queue_details(){
 	int i;
-	printf("Fila:\n");
+
 		for (i = 0; i < FRAME_LIMIT; i++){
 			if(i == 0) 
-				printf("Sai ----> %d: Processo: %d -> Page: %d.\n", i, page_queue[i]/PAGE_LIMIT, page_queue[i]%PAGE_LIMIT);
+				printf("Fila:\tSai ----> %d: Processo: %d -> Page: %d.\n", i, page_queue[i]/PAGE_LIMIT, page_queue[i]%PAGE_LIMIT);
 			else if(i == FRAME_LIMIT -1)
-				printf("Entra --> %d: Processo: %d -> Page: %d.\n", i, page_queue[i]/PAGE_LIMIT, page_queue[i]%PAGE_LIMIT);
+				printf("    |\tEntra --> %d: Processo: %d -> Page: %d.\n", i, page_queue[i]/PAGE_LIMIT, page_queue[i]%PAGE_LIMIT);
 			else
-				printf("--------> %d: Processo: %d -> Page: %d.\n", i, page_queue[i]/PAGE_LIMIT, page_queue[i]%PAGE_LIMIT);
+				printf("    |\t--------> %d: Processo: %d -> Page: %d.\n", i, page_queue[i]/PAGE_LIMIT, page_queue[i]%PAGE_LIMIT);
 		}
 }
 
 void print_LRUF(){
 	int i;
-	printf("\nLRUF - Last Recent Used Frames: [new .. old]\n");
+	printf(ANSI_COLOR_BLUE"\nLRUF - Last Recent Used Frames: [new .. old]\nEntra -> ");
 	for(i=0;i<FRAME_LIMIT;i++) printf("  %i", recent_frame[i]);
-	printf("\n");	
+	printf(" -> Sai\n\n"ANSI_COLOR_RESET);	
 }

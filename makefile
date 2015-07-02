@@ -5,7 +5,7 @@ all:
 	make gcc
 	ls
 	@echo ____________________________________________________________________Executa
-	./memoria
+	./memoria.out
 
 	
 
@@ -19,5 +19,5 @@ gcc:
 guake_sublime:
 	@gcc memoria.c -o memoria.out -lpthread	
 	guake	 
-	guake -e ./memoria
+	guake -e ./memoria.out
 
