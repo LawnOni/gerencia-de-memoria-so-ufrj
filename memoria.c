@@ -2,8 +2,8 @@
 //Luan Cerqueira Martins
 //T2 SO 2015.1 ProfValeria
 
-#define MULTIPLUS 1 //multiplicador para alterar facilmente/proporcionalmente o tamanho das threads e memorias 
-#define SLEEP_TIME 500000 
+#define MULTIPLUS 1/4 //multiplicador para alterar facilmente/proporcionalmente o tamanho das threads e memorias 
+#define SLEEP_TIME 500000
 
 #include "memoria.h"
 
@@ -158,49 +158,57 @@ void print_memorys(){
 	number_of_non_free_frames = 0;
 	number_of_free_frames = 0;
 
-	printf("\nMEMORIA PRINCIPAL\t\t\t\tMEMORIA VIRTUAL\n");
-	printf("_________________\t\t\t\t_______________\n");
+	printf("\n\tMEMORIA PRINCIPAL\t\t\t\t\t\t\tMEMORIA VIRTUAL\n");
+	printf("______________________________________\t\t_______________________________________________________________________________________\n");
 
 	for (i = 0; i < FRAME_LIMIT; i++){
 		if(main_memory[i].process_id > -1){
-			printf("Frame: %d -> Processo: %d -> Page: %d.\t\t", i, main_memory[i].process_id, main_memory[i].number);
-
+			printf("Frame: %2d -> Processo: %2d -> Page: %2d.\t\t", i, main_memory[i].process_id, main_memory[i].number);
 			number_of_non_free_frames++;
 		}
 		else{
-			printf("Frame: %d Vazio\t\t\t\t\t", i);
+			printf("Frame: %2d Vazio\t\t\t\t\t", i);
 			number_of_free_frames++;
 		}
+		
+		if(virtual_memory[i].process_id > -1)  printf("Frame: %2d -> Processo: %2d -> Page: %2d.\t\t", i, virtual_memory[i].process_id, virtual_memory[i].number);
+		else  printf("Frame: %2d Vazio\t\t\t\t\t", i);
 
-		if(virtual_memory[i].process_id > -1){
-			printf("Frame: %d -> Processo: %d -> Page: %d.\n", i, virtual_memory[i].process_id, virtual_memory[i].number);
-		}
-		else{
-			printf("Frame: %d Vazio\n", i);
-		}
+		if(virtual_memory[2*FRAME_LIMIT+i].process_id > -1)  printf("Frame: %2d -> Processo: %2d -> Page: %2d.", 2*FRAME_LIMIT+i, virtual_memory[2*FRAME_LIMIT+i].process_id, virtual_memory[2*FRAME_LIMIT+i].number);
+		else  printf("Frame: %2d Vazio", 2*FRAME_LIMIT+i);
+		printf("\n");
 
 	}
 
-	for (i = FRAME_LIMIT+1; i < VIRTUAL_MEMORY_SIZE; i++){
+	for (i = FRAME_LIMIT+1; i < 2*FRAME_LIMIT; i++){
 		
 		if (i== FRAME_LIMIT+4) printf(ANSI_COLOR_RED "LIVRES: %2i\t\t\t\t\t"ANSI_COLOR_RESET,number_of_free_frames); 
 		else if (i== FRAME_LIMIT+5) printf(ANSI_COLOR_RED"CHEIOS: %2i\t\t\t\t\t"ANSI_COLOR_RESET, number_of_non_free_frames);
 		else 	printf("\t\t\t\t\t\t");
 	
-		if(virtual_memory[i].process_id > -1){
-			printf("Frame: %d -> Processo: %d -> Page: %d.\n", i, virtual_memory[i].process_id, virtual_memory[i].number);
-		}
-		else{
-			printf("Frame: %d Vazio\n", i);
-		}
+		if(virtual_memory[i].process_id > -1)  printf("Frame: %2d -> Processo: %2d -> Page: %2d.\t\t", i, virtual_memory[i].process_id, virtual_memory[i].number);
+		else  printf("Frame: %2d Vazio\t\t\t\t\t", i);
+		
+		if(virtual_memory[i+2*FRAME_LIMIT-1].process_id > -1)  printf("Frame: %2d -> Processo: %2d -> Page: %2d.", i+2*FRAME_LIMIT-1, virtual_memory[i+2*FRAME_LIMIT-1].process_id, virtual_memory[i+2*FRAME_LIMIT-1].number);
+		else  printf("Frame: %2d Vazio", i+2*FRAME_LIMIT-1);
+
+		printf("\n");
 
 	}
+
+	for (i = 2*FRAME_LIMIT+1; i < VIRTUAL_MEMORY_SIZE; ++i)
+	{
+			
+
+	}
+
+
 
 	print_LRUF();
 
 	if ( (number_of_non_free_frames + number_of_free_frames) != FRAME_LIMIT) { printf("Erro em  qtdade frames"); exit(0);}
 
-	print_queue_details();	
+	//print_queue_details();	
 }
 
 void initialize_page_list_of_process(int size, int process_id){
@@ -301,7 +309,7 @@ void print_queue_details(){
 
 void print_LRUF(){
 	int i;
-	printf("LRUF - Last Recent Used Frames: [new .. old]\n");
+	printf("\nLRUF - Last Recent Used Frames: [new .. old]\n");
 	for(i=0;i<FRAME_LIMIT;i++) printf("  %i", recent_frame[i]);
 	printf("\n");	
 }
