@@ -90,10 +90,37 @@ int create_process(){
 
 void request_page(int process_id, int page_number){
 	int i,j,k;
-	bool pula=false;
-	int frame=FRAME_LIMIT-1;
+	int frame;
 	int pg;
+	bool continua;
+	/*
+	for (i = 0; i < FRAME_LIMIT; i++){
+		if(main_memory[i].process_id == -1){
+			main_memory[i] = process_list[process_id].page_list[page_number];
+			add_page_to_queue(PAGE_LIMIT * process_id + main_memory[i].number);
+			return;
+		}
+	}
+	printf(ANSI_COLOR_RED "------------> MEMORIA CHEIA :( \n" ANSI_COLOR_RESET);
+
 	
+	int pid = page_queue[0]/PAGE_LIMIT;
+	int pageN = page_queue[0]%PAGE_LIMIT;
+	int frame;
+
+	for (i = 0; i < FRAME_LIMIT; i++){
+		if(main_memory[i].process_id == pid && main_memory[i].number == pageN){
+			frame = i;
+		}
+	}
+
+	main_memory[frame] = process_list[process_id].page_list[page_number];
+	add_page_to_queue(PAGE_LIMIT * process_id + main_memory[frame].number);
+	return;
+*/
+	for (i = FRAME_LIMIT-1; i > 0; i--) recent_frame[i+1] = recent_frame[i];
+	// recent_frame[0]=-1;
+
 	
 	
 	//se ha frames vazios
@@ -101,65 +128,55 @@ void request_page(int process_id, int page_number){
 		for (i = 0; i < FRAME_LIMIT; i++){
 			if(main_memory[i].process_id == -1){
 				frame=i;
-				//atualiza a lista de frames recentemente utilizados
-				for (i = 0; i<FRAME_LIMIT; i++) {
-					if(recent_frame[i]==frame){
-						for (j = i; j > 0; j--) { 
-							recent_frame[j]=recent_frame[j-1];
-							//if(non_recent_frame_index != FRAME_LIMIT-1)non_recent_frame_index++;
-						}
-						recent_frame[0]=frame;
-						pula=true;	
-					}
-				}
-
-				if (!pula){
-					for (i = FRAME_LIMIT-1; i > 0; i--) { 
-						recent_frame[i] = recent_frame[i-1];
-						//if(non_recent_frame_index != FRAME_LIMIT-1)non_recent_frame_index++;
-					}
-					recent_frame[0] = frame;
-				 }
 				break;
 			}
 		}
+	}
 
+
+// 	else{ 
+// 		continua=true;
+// 		//shift right
+// 		if(continua)  for (i = VIRTUAL_MEMORY_SIZE-1; i > 0; i--){ 
+// 			printf(" %i ", i);
+// 			virtual_memory[i] = virtual_memory[i-1];
+// 		}
+
+// 		if(continua){
+// 			//primeiro testar o workingset limit 
+// 			// ***** ajustar, estou testando apenas se alguma pagina do processo ja esta na lista
+// 			for (i = 0; i < FRAME_LIMIT; i++){
+// 				if(main_memory[i].process_id == process_id && main_memory[i].number < pg)
+// 					frame=i;
+// 					continua=false;
+					
+// 					//passa o processo para a memoria virtual
+// 					virtual_memory[0]=main_memory[frame];
+// 					break;
+// 			}
+// 		}
+
+// 		if(continua){
+// 			// atribuir o frame a ser trocado para caso do workingset estar vazio ou abaixo do limite
+// 			frame=recent_frame[FRAME_LIMIT-1];
+
+// 			//passa o processo para a memoria virtual
+// 			virtual_memory[0]=main_memory[frame];
+// 		}
+// 	}	
+		
+
+		
+		//atualiza a lista de frames recentemente utilizados
+		for(k=FRAME_LIMIT-1;k>=0;k--) 
+			if (recent_frame[k]==frame) 
+				for (j = k; j > 0; j--) recent_frame[j] = recent_frame[j-1]; //remove copias do frame do array,
+		recent_frame[0] = frame;
+
+			
 		//insere na memoria principal
 		main_memory[frame] = process_list[process_id].page_list[page_number];
 		add_page_to_queue(PAGE_LIMIT * process_id + main_memory[frame].number);
-	}
-
-	else{
-		//atualiza processos na virtual
-		if (virtual_memory[0].process_id != -1) {
-			for (i = VIRTUAL_MEMORY_SIZE-1; i > 0; i--) virtual_memory[i] = virtual_memory[i-1]; 
-			
-		}
-
-		if(recent_frame[FRAME_LIMIT-1] != -1) { 
-			virtual_memory[0] = main_memory[ recent_frame[FRAME_LIMIT-1] ];
-			frame=recent_frame[FRAME_LIMIT-1];
-
-			for (i = 0; i<FRAME_LIMIT; i++) {
-					if(recent_frame[i]==frame){
-						for (j = i; j > 0; j--) { 
-							recent_frame[j]=recent_frame[j-1];
-						}
-						recent_frame[0]=frame;
-						pula=true;	
-					}
-				}
-
-			non_recent_frame_index--;	
-		}
-
-		//insere na memoria principal
-		main_memory[ recent_frame[FRAME_LIMIT-1] ] = process_list[process_id].page_list[page_number];
-		add_page_to_queue(PAGE_LIMIT * process_id + main_memory[frame].number);
-	}
-
-
-	
  }
 
 void print_memorys(){
@@ -207,7 +224,7 @@ void print_memorys(){
 	printf(ANSI_COLOR_CYAN"\n------------------- LIVRES: %2i // CHEIOS: %2i -------------------\n\n" ANSI_COLOR_RESET, number_of_free_frames, number_of_non_free_frames);
 	if ( (number_of_non_free_frames + number_of_free_frames) != FRAME_LIMIT) exit(0);
 
-	print_queue_details();	
+	//print_queue_details();	
 }
 
 void initialize_page_list_of_process(int size, int process_id){

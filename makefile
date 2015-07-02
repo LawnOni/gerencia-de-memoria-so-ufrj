@@ -2,13 +2,22 @@ all:
 	@echo ____________________________________________________________________Cria
 	clear all
 	@echo ____________________________________________________________________compila
-	@gcc memoria.c -o memoria -lpthread 
+	make gcc
 	ls
 	@echo ____________________________________________________________________Executa
 	./memoria
 
 	
 
-clean: 
+clean:
+	clear all 
 	rm a.out memoria
+
+gcc:	
+	@gcc memoria.c -o memoria -lpthread
+
+guake_sublime:
+	@gcc memoria.c -o memoria -lpthread	
+	guake	 
+	guake -e ./memoria
 
