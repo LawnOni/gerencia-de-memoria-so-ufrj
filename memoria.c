@@ -217,7 +217,8 @@ void print_memorys(){
 	//// **verificar porque nao esta saindo no print
 	//print_queue_details();
 
-	printf("________________________Numero do Frame_______");
+	
+	printf("___________________________________Numero da Pagina______");
 	for (i = 0; i < WORKSET_LIMIT; i++)	printf("_%2i",i);
 	printf("_\n");
 	for(i=0;i<THREAD_LIMIT;i++) print_workingset(i);	
@@ -332,7 +333,7 @@ void print_LRUF(){
 
 void print_workingset(int process_id){
 	int i;
-	printf("Processo %i esta alocado nos seguintes frames: ",process_id);
+	printf("Paginas do processo %i esta alocado nos seguintes frames: ",process_id);
 	for (i = 0; i < WORKSET_LIMIT; i++) printf(" %2i",process_list[process_id].works.frames[i]);
 	printf("\n");
 
