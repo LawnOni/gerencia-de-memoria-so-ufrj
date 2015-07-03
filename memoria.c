@@ -3,7 +3,7 @@
 //T2 SO 2015.1 ProfValeria
 
 #define MULTIPLUS 1/4 //multiplicador para alterar facilmente/proporcionalmente o tamanho das threads e memorias 
-#define SLEEP_TIME 500000
+#define SLEEP_TIME 500000/2
 
 #include "memoria.h"
 
@@ -147,10 +147,10 @@ void request_page(int process_id, int page_number){
 		frame=recent_frame[FRAME_LIMIT-1];
 
 		//remove a pagina do workingset
-			//Frame: 		frame
-			//Processo: 	main_memory[frame].process_id
-			//Page: 		main_memory[frame].number;
-			process_list[main_memory[frame].process_id].works.frames[main_memory[frame].number]=-1;
+		//Frame: 		frame
+		//Processo: 	main_memory[frame].process_id
+		//Page: 		main_memory[frame].number;
+		process_list[main_memory[frame].process_id].works.frames[main_memory[frame].number]=-1;
 	}
 
 	//adiciona o frame da nova pagina ao workingsetlimit	2_metodos
@@ -243,6 +243,9 @@ void stop_process(int process_id){
 			main_memory[i].process_id = -1;
 		}
 	}
+
+	for (i = 0; i < WORKSET_LIMIT; i++) process_list[process_id].works.frames[i]=-1;
+
 }
 
 void reset_main_memory(){
