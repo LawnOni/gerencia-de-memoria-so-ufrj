@@ -1,5 +1,3 @@
-
-
 #include	<stdio.h>
 #include 	<stdlib.h>
 #include	<pthread.h>
@@ -19,25 +17,28 @@
 #define ANSI_COLOR_CYAN    "\x1b[36m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
-#define WORKSET_LIMIT 4
+#define WORKSET_LIMIT 16
 #define FRAME_LIMIT 64*MULTIPLUS //main_memory_size
 #define MAIN_MEMORY_SIZE FRAME_LIMIT
 #define VIRTUAL_MEMORY_SIZE 4*FRAME_LIMIT
 #define THREAD_LIMIT 20*MULTIPLUS
 #define PAGE_LIMIT 50*MULTIPLUS
 
-
-struct Page
-{
+struct Page{
 	int process_id;
     int number;
     int value;
 };
 
-struct Process
-{
+typedef union{
+	int ids[WORKSET_LIMIT];
+	int frames[WORKSET_LIMIT];
+} WorkingSet;
+
+struct Process{
     int id;
     struct Page page_list[PAGE_LIMIT];
+    WorkingSet works;
 };
 
 int number_of_process = 0;
@@ -73,7 +74,7 @@ void* execute_process(int id);
 void initialize_page_list_of_process(int size, int process_id);
 void running_processes();
 void stop_process(int process_id);
-
+void print_workingset(int process_id);
 
 //Queue functions
 void add_page_to_queue(int newPage);

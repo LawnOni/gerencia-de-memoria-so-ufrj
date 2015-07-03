@@ -8,6 +8,7 @@
 #include "memoria.h"
 
 
+
 //ao terminar lembrar de colocar argumentos: como os tamanhos e o sleep time	
 int main( int argc, char *argv[ ] ){
 	reset_main_memory();
@@ -69,6 +70,7 @@ void* execute_process(int id){
 }
 
 int create_process(){
+	int i;
 	struct Process _process;
 	pthread_mutex_lock(&process_list_lock);
 	_process.id = number_of_process;
@@ -76,6 +78,7 @@ int create_process(){
 	number_of_process++;
 	running_process[running_process_index] = _process.id;
 	running_process_index++;
+	for(i=0;i<WORKSET_LIMIT;i++) process_list[_process.id].works.frames[i] = -1;
 	pthread_mutex_unlock(&process_list_lock);
 	initialize_page_list_of_process(PAGE_LIMIT, number_of_process - 1);
 
@@ -116,9 +119,7 @@ void request_page(int process_id, int page_number){
 			}
 		}
 
-		// //insere na memoria principal
-		// main_memory[frame] = process_list[process_id].page_list[page_number];
-		// add_page_to_queue(PAGE_LIMIT * process_id + main_memory[frame].number);
+
 	}
 
 	else{
@@ -144,12 +145,22 @@ void request_page(int process_id, int page_number){
 
 		//atualiza o valor do frame a ser retirado da memoria principal
 		frame=recent_frame[FRAME_LIMIT-1];
+
+		//remove a pagina do workingset
+			//Frame: 		frame
+			//Processo: 	main_memory[frame].process_id
+			//Page: 		main_memory[frame].number;
+			process_list[main_memory[frame].process_id].works.frames[main_memory[frame].number]=-1;
 	}
-	
+
+	//adiciona o frame da nova pagina ao workingsetlimit	2_metodos
+	process_list[process_id].works.frames[page_number]=frame;
+	//process_list[ main_memory[frame].process_id ].works.frames[ main_memory[frame].number ]=frame;
+
 	//insere na memoria principal
 	main_memory[frame] = process_list[process_id].page_list[page_number];
 	add_page_to_queue(PAGE_LIMIT * process_id + main_memory[frame].number);
- }
+}
 
 void print_memorys(){
 	running_processes(); 
@@ -204,7 +215,12 @@ void print_memorys(){
 
 
 	//// **verificar porque nao esta saindo no print
-	//print_queue_details();	
+	//print_queue_details();
+
+	printf("________________________Numero do Frame_______");
+	for (i = 0; i < WORKSET_LIMIT; i++)	printf("_%2i",i);
+	printf("_\n");
+	for(i=0;i<THREAD_LIMIT;i++) print_workingset(i);	
 }
 
 void initialize_page_list_of_process(int size, int process_id){
@@ -308,4 +324,13 @@ void print_LRUF(){
 	printf(ANSI_COLOR_BLUE"\nLRUF - Last Recent Used Frames: [new .. old]\nEntra -> ");
 	for(i=0;i<FRAME_LIMIT;i++) printf("  %i", recent_frame[i]);
 	printf(" -> Sai\n\n"ANSI_COLOR_RESET);	
+}
+
+
+void print_workingset(int process_id){
+	int i;
+	printf("Processo %i esta alocado nos seguintes frames: ",process_id);
+	for (i = 0; i < WORKSET_LIMIT; i++) printf(" %2i",process_list[process_id].works.frames[i]);
+	printf("\n");
+
 }
