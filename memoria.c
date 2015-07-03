@@ -170,18 +170,13 @@ void print_memories(){
 
 	}
 
-
-
-
+	if ( (number_of_non_free_frames + number_of_free_frames) != FRAME_LIMIT) { printf("Erro em  qtdade frames"); exit(0);}
 	print_LRUF();
 
-	if ( (number_of_non_free_frames + number_of_free_frames) != FRAME_LIMIT) { printf("Erro em  qtdade frames"); exit(0);}
-
-
-	//// **verificar porque nao esta saindo no print
+	//// **verificar 
 	//print_queue_details();
 
-	
+
 	printf("___________________________________Numero da Pagina______");
 	for (i = 0; i < PAGE_LIMIT; i++)	printf("_%2i",i);
 	printf("_\n");
