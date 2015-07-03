@@ -1,3 +1,7 @@
+//Leonardo Neves da Silva DRE110155777
+//Luan Cerqueira Martins
+//T2 SO 2015.1 ProfValeria
+
 #include	<stdio.h>
 #include 	<stdlib.h>
 #include	<pthread.h>
@@ -19,7 +23,7 @@
 
 #define FRAME_LIMIT 16 //64*MULTIPLUS //main_memory_size //64
 #define MAIN_MEMORY_SIZE FRAME_LIMIT //64
-#define VIRTUAL_MEMORY_SIZE 5*FRAME_LIMIT //NAOSEIQTO
+#define VIRTUAL_MEMORY_SIZE 4*FRAME_LIMIT //NAOSEIQTO
 #define THREAD_LIMIT 8//20*MULTIPLUS //20
 #define PAGE_LIMIT 10//50*MULTIPLUS //50
 #define WORKSET_LIMIT 4//PAGE_LIMIT //PARA TESTES //4
