@@ -17,12 +17,12 @@
 #define ANSI_COLOR_CYAN    "\x1b[36m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
-#define FRAME_LIMIT 64*MULTIPLUS //main_memory_size //64
+#define FRAME_LIMIT 16 //64*MULTIPLUS //main_memory_size //64
 #define MAIN_MEMORY_SIZE FRAME_LIMIT //64
 #define VIRTUAL_MEMORY_SIZE 4*FRAME_LIMIT //NAOSEIQTO
-#define THREAD_LIMIT 20*MULTIPLUS //20
-#define PAGE_LIMIT 50*MULTIPLUS //50
-#define WORKSET_LIMIT PAGE_LIMIT //PARA TESTES //4
+#define THREAD_LIMIT 5//20*MULTIPLUS //20
+#define PAGE_LIMIT 10//50*MULTIPLUS //50
+#define WORKSET_LIMIT 4//PAGE_LIMIT //PARA TESTES //4
 
 
 struct Page{
@@ -32,8 +32,8 @@ struct Page{
 };
 
 typedef union{
-	int ids[WORKSET_LIMIT];
-	int frames[WORKSET_LIMIT];
+	int ids[PAGE_LIMIT];
+	int frames[PAGE_LIMIT];
 } WorkingSet;
 
 struct Process{
@@ -66,9 +66,11 @@ pthread_mutex_t process_list_lock;
 int page_queue[FRAME_LIMIT];
 
 // Gerenciador de memória
-void print_memorys();
+void print_memories();
 void reset_main_memory();
 void reset_virtual_memory();
+
+//process functions
 void request_page(int process_id, int page_number);
 int create_process();
 void* execute_process(int id);
@@ -76,6 +78,10 @@ void initialize_page_list_of_process(int size, int process_id);
 void running_processes();
 void stop_process(int process_id);
 void print_workingset(int process_id);
+bool using_all_working_set(int process_id);
+int insert_pag_empty_frames(int process_id, int page_number);
+int insert_pag_full_memory(int process_id, int page_number);
+
 
 //Queue functions
 void add_page_to_queue(int newPage);
@@ -85,4 +91,6 @@ void print_queue();
 void print_queue_details();
 int get_queue_offset(int page);
 void print_LRUF();
+
+
 

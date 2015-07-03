@@ -11,7 +11,7 @@ all:
 
 clean:
 	clear all 
-	rm a.out memoria
+	rm a.out memoria memoria.out
 
 gcc:	
 	@gcc memoria.c -o memoria.out -lpthread
@@ -20,4 +20,3 @@ guake_sublime:
 	@gcc memoria.c -o memoria.out -lpthread	
 	guake	 
 	guake -e ./memoria.out
-
