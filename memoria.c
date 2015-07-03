@@ -2,7 +2,7 @@
 //Luan Cerqueira Martins
 //T2 SO 2015.1 ProfValeria
 
-#define MULTIPLUS 1/4 //multiplicador para alterar facilmente/proporcionalmente o tamanho das threads e memorias 
+#define MULTIPLUS 1 //multiplicador para alterar facilmente/proporcionalmente o tamanho das threads e memorias 
 #define SLEEP_TIME 500000/2
 
 #include "memoria.h"
@@ -120,6 +120,7 @@ void print_memories(){
 	printf("______________________________________\t\t_______________________________________________________________________________________\n");
 
 	for (i = 0; i < FRAME_LIMIT; i++){
+		//main 0-15
 		if(main_memory[i].process_id > -1){
 			printf("Frame: %2d -> Processo: %2d -> Page: %2d.\t\t", i, main_memory[i].process_id, main_memory[i].number);
 			number_of_non_free_frames++;
@@ -129,30 +130,46 @@ void print_memories(){
 			number_of_free_frames++;
 		}
 		
+		//0-15
 		if(virtual_memory[i].process_id > -1)  printf("Frame: %2d -> Processo: %2d -> Page: %2d.\t\t", i, virtual_memory[i].process_id, virtual_memory[i].number);
 		else  printf("Frame: %2d Vazio\t\t\t\t\t", i);
 
-		if(virtual_memory[2*FRAME_LIMIT+i].process_id > -1)  printf("Frame: %2d -> Processo: %2d -> Page: %2d.", 2*FRAME_LIMIT+i, virtual_memory[2*FRAME_LIMIT+i].process_id, virtual_memory[2*FRAME_LIMIT+i].number);
-		else  printf("Frame: %2d Vazio", 2*FRAME_LIMIT+i);
+		//32-47
+		if (2*FRAME_LIMIT+i>=VIRTUAL_MEMORY_SIZE)	printf("--");
+		else if(virtual_memory[2*FRAME_LIMIT+i].process_id > -1)  printf("Frame: %2d -> Processo: %2d -> Page: %2d.", 2*FRAME_LIMIT+i, virtual_memory[2*FRAME_LIMIT+i].process_id, virtual_memory[2*FRAME_LIMIT+i].number);
+		else printf("Frame: %2d Vazio", 2*FRAME_LIMIT+i);
 		printf("\n");
 
 	}
 
-	for (i = FRAME_LIMIT+1; i < 2*FRAME_LIMIT; i++){
+	for (i = 0; i < FRAME_LIMIT; i++){
+		//slots cheio vs vazios
+		if (i== 4) printf(ANSI_COLOR_RED "LIVRES: %2i\t\t\t\t\t"ANSI_COLOR_RESET,number_of_free_frames); 
+		else if (i== 5) printf(ANSI_COLOR_RED"CHEIOS: %2i\t\t\t\t\t"ANSI_COLOR_RESET, number_of_non_free_frames);
+		else printf("\t\t\t\t\t\t");
 		
-		if (i== FRAME_LIMIT+4) printf(ANSI_COLOR_RED "LIVRES: %2i\t\t\t\t\t"ANSI_COLOR_RESET,number_of_free_frames); 
-		else if (i== FRAME_LIMIT+5) printf(ANSI_COLOR_RED"CHEIOS: %2i\t\t\t\t\t"ANSI_COLOR_RESET, number_of_non_free_frames);
-		else 	printf("\t\t\t\t\t\t");
-	
-		if(virtual_memory[i].process_id > -1)  printf("Frame: %2d -> Processo: %2d -> Page: %2d.\t\t", i, virtual_memory[i].process_id, virtual_memory[i].number);
-		else  printf("Frame: %2d Vazio\t\t\t\t\t", i);
+		//16-31
+		if (FRAME_LIMIT+i>=VIRTUAL_MEMORY_SIZE)	printf("--\t\t\t\t\t\t");
+		else if(virtual_memory[FRAME_LIMIT+i].process_id > -1)  printf("Frame: %2d -> Processo: %2d -> Page: %2d.\t\t", FRAME_LIMIT+i, virtual_memory[FRAME_LIMIT+i].process_id, virtual_memory[FRAME_LIMIT+i].number);
+		else printf("Frame: %2d Vazio\t\t\t\t\t", FRAME_LIMIT+i);
 		
-		if(virtual_memory[i+2*FRAME_LIMIT-1].process_id > -1)  printf("Frame: %2d -> Processo: %2d -> Page: %2d.", i+2*FRAME_LIMIT-1, virtual_memory[i+2*FRAME_LIMIT-1].process_id, virtual_memory[i+2*FRAME_LIMIT-1].number);
-		else  printf("Frame: %2d Vazio", i+2*FRAME_LIMIT-1);
+		//48-63
+		if (3*FRAME_LIMIT+i>=VIRTUAL_MEMORY_SIZE)	printf("--");
+		else if(virtual_memory[3*FRAME_LIMIT+i].process_id > -1)  printf("Frame: %2d -> Processo: %2d -> Page: %2d.", 3*FRAME_LIMIT+i, virtual_memory[3*FRAME_LIMIT+i].process_id, virtual_memory[3*FRAME_LIMIT+i].number);
+		else printf("Frame: %2d Vazio", 3*FRAME_LIMIT+i);
 
 		printf("\n");
 
 	}
+
+	for (i = 4*FRAME_LIMIT; i < VIRTUAL_MEMORY_SIZE; i++){
+		printf("\t\t\t\t\t\t\t\t\t\t\t\t");
+		if(virtual_memory[i].process_id > -1)  printf("Frame: %2d -> Processo: %2d -> Page: %2d.", i, virtual_memory[i].process_id, virtual_memory[i].number);
+		else  printf("Frame: %2d Vazio", i);
+		printf("\n");
+
+	}
+
 
 
 
