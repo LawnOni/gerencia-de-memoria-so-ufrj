@@ -3,7 +3,7 @@
 //T2 SO 2015.1 ProfValeria
 
 #define MULTIPLUS 1 //multiplicador para alterar facilmente/proporcionalmente o tamanho das threads e memorias 
-#define SLEEP_TIME 500000/2
+#define SLEEP_TIME 1000000//500000/2 //3000000
 
 #include "memoria.h"
 
@@ -116,7 +116,7 @@ void print_memories(){
 	number_of_non_free_frames = 0;
 	number_of_free_frames = 0;
 
-	printf("\n\tMEMORIA PRINCIPAL\t\t\t\t\t\t\tMEMORIA VIRTUAL\n");
+	printf("\tMEMORIA PRINCIPAL\t\t\t\t\t\t\tMEMORIA VIRTUAL\n");
 	printf("______________________________________\t\t_______________________________________________________________________________________\n");
 
 	for (i = 0; i < FRAME_LIMIT; i++){
@@ -144,8 +144,8 @@ void print_memories(){
 
 	for (i = 0; i < FRAME_LIMIT; i++){
 		//slots cheio vs vazios
-		if (i== 4) printf(ANSI_COLOR_RED "LIVRES: %2i\t\t\t\t\t"ANSI_COLOR_RESET,number_of_free_frames); 
-		else if (i== 5) printf(ANSI_COLOR_RED"CHEIOS: %2i\t\t\t\t\t"ANSI_COLOR_RESET, number_of_non_free_frames);
+		if (i== 4) printf(ANSI_BG_GREEN"LIVRES: %2i\t\t\t\t\t"ANSI_COLOR_RESET,number_of_free_frames); 
+		else if (i== 5) printf(ANSI_BG_RED"CHEIOS: %2i\t\t\t\t\t"ANSI_COLOR_RESET, number_of_non_free_frames);
 		else printf("\t\t\t\t\t\t");
 		
 		//16-31
@@ -283,15 +283,17 @@ void print_queue_details(){
 
 void print_LRUF(){
 	int i;
-	printf(ANSI_COLOR_BLUE"\nLRUF - Last Recent Used Frames: [new .. old]\nEntra -> ");
+	printf(ANSI_BOLD_ON"LRUF - Last Recent Used Frames: [new .. old]"ANSI_COLOR_RESET);
+	printf("\nEntra ->" );
 	for(i=0;i<FRAME_LIMIT;i++) printf("  %i", recent_frame[i]);
-	printf(" -> Sai\n\n"ANSI_COLOR_RESET);	
+	printf(" -> Sai\n");	
 }
 
 void print_workingset(int process_id){
 	int i;
 	printf("Paginas do processo %i esta alocado nos seguintes frames: ",process_id);
-	for (i = 0; i < PAGE_LIMIT; i++) printf(" %2i",process_list[process_id].works.frames[i]);
+	for (i = 0; i < PAGE_LIMIT; i++) if (process_list[process_id].works.frames[i]==-1) printf(" %2i",process_list[process_id].works.frames[i]);
+									else printf(ANSI_INVERSE_ON" %2i"ANSI_COLOR_RESET,process_list[process_id].works.frames[i]);
 	printf("\n");
 }
 
