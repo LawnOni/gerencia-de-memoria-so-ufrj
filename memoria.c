@@ -88,7 +88,7 @@ int create_process(){
 void request_page(int process_id, int page_number){
 	int i,j;
 	bool faz=true;
-	int frame=FRAME_LIMIT-1;//por padrao, em caso de erro, remover o ultimo frame da lista para a virtual
+	int frame=FRAME_LIMIT-1;//por padrao, em caso de erro, remover o last frame da lista para a virtual
 	
 
 	//verifica se ha frames vazios
@@ -284,9 +284,10 @@ void print_queue_details(){
 void print_LRUF(){
 	int i;
 	printf(ANSI_BOLD_ON"LRUF - Last Recent Used Frames: [new .. old]"ANSI_COLOR_RESET);
-	printf("\nEntra ->" );
-	for(i=0;i<FRAME_LIMIT;i++) printf("  %i", recent_frame[i]);
-	printf(" -> Sai\n");	
+	printf("\nRecente ->" );
+	for(i=0;i<FRAME_LIMIT-1;i++) printf("  %i", recent_frame[i]);
+	printf("  "ANSI_INVERSE_ON "%i" ANSI_COLOR_RESET, recent_frame[FRAME_LIMIT-1]);
+	printf(" -> Removido \n");	
 }
 
 void print_workingset(int process_id){
@@ -308,7 +309,7 @@ bool using_all_working_set(int process_id){
 int insert_pag_empty_frames(int process_id, int page_number){
 	int i,j;
 	bool faz=true;
-	int frame=FRAME_LIMIT-1;//por padrao, em caso de erro, remover o ultimo frame da lista para a virtual
+	int frame=FRAME_LIMIT-1;//por padrao, em caso de erro, remover o last frame da lista para a virtual
 
 	for (i = 0; i < FRAME_LIMIT; i++){
 		if(main_memory[i].process_id == -1){
@@ -341,30 +342,35 @@ int insert_pag_empty_frames(int process_id, int page_number){
 int insert_pag_full_memory(int process_id, int page_number){
 	int i,j;
 	bool faz=true;
-	int frame=FRAME_LIMIT-1;//por padrao, em caso de erro, remover o ultimo frame da lista para a virtual
+	int frame=FRAME_LIMIT-1;//por padrao, em caso de erro, remover o last frame da lista para a virtual
 	
+	int recent = recent_frame[FRAME_LIMIT-1];
+	//int first = recent_frame[0]// ira para segundo
+	int last = FRAME_LIMIT-1; //ira para o inicio da fila, será primeiro
+
 	//atualiza processos na virtual
 	if (virtual_memory[0].process_id != -1) {
 		for (i = VIRTUAL_MEMORY_SIZE-1; i > 0; i--) virtual_memory[i] = virtual_memory[i-1]; 
 		
 	}
 
-	if(recent_frame[FRAME_LIMIT-1] != -1) { 
+	if(recent_frame[last] != -1) { 
 
 		for (i = 0; i<FRAME_LIMIT; i++) {
-				if(recent_frame[i]==recent_frame[FRAME_LIMIT-1]){ //atualiza o LRU, e remove copias da fila antes de inserir
+
+				if(recent_frame[i]==recent_frame[last]){ //atualiza o LRU, e remove copias da fila antes de inserir
 					for (j = i; j > 0; j--) { 
 						recent_frame[j]=recent_frame[j-1];
 					}
-					recent_frame[0]=recent_frame[FRAME_LIMIT-1]; //roda, o ultimo vira o primeiro
+					recent_frame[0]=recent; //o ultimo vira o primeiro
 				}
 			}
 		//COPIA PARA A MEMORIA VIRTUAL O FRAME Q SAIRA
-		virtual_memory[0] = main_memory[ recent_frame[FRAME_LIMIT-1] ];
+		virtual_memory[0] = main_memory[ recent_frame[last] ];
 	}
 
 	//atualiza o valor do frame a ser retirado da memoria principal
-	frame=recent_frame[FRAME_LIMIT-1];
+	frame=recent_frame[last];
 
 	//remove a pagina do workingset
 	//Frame: 		frame
