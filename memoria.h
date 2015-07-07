@@ -11,6 +11,11 @@
 //#include	<sys/timeb.h>
 //#include <sys/wait.h>
 
+//ARQUIVO DE BUILD NO SUBLIME
+// "/home/leonardo/.config/sublime-text-3/Packages/User/make guake_sublime.sublime-build"
+// {	"shell_cmd": "make guake_sublime" }
+
+
 //print colorido -exemplo  
 //printf(ANSI_COLOR_RED "This text is RED!" ANSI_COLOR_RESET "\n");
 #define ANSI_COLOR_RED     "\x1b[31m"
@@ -40,12 +45,12 @@
 #define ANSI_BG_WHITE   "\x1b[47m"
 
 
-#define FRAME_LIMIT 8 //64*MULTIPLUS //main_memory_size //64
+#define FRAME_LIMIT 16 //64*MULTIPLUS //main_memory_size //64
 #define MAIN_MEMORY_SIZE FRAME_LIMIT //64
 #define VIRTUAL_MEMORY_SIZE 4*FRAME_LIMIT //NAOSEIQTO
-#define THREAD_LIMIT 10//20*MULTIPLUS //20
-#define PAGE_LIMIT 5//50*MULTIPLUS //50
-#define WORKSET_LIMIT 3//PAGE_LIMIT //PARA TESTES //4
+#define THREAD_LIMIT 15//20*MULTIPLUS //20
+#define PAGE_LIMIT 10//50*MULTIPLUS //50
+#define WORKSET_LIMIT 5//PAGE_LIMIT //PARA TESTES //4
 
 
 struct Page{

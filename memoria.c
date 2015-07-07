@@ -3,7 +3,7 @@
 //T2 SO 2015.1 ProfValeria
 
 #define MULTIPLUS 1 //multiplicador para alterar facilmente/proporcionalmente o tamanho das threads e memorias 
-#define SLEEP_TIME 1000000//500000/2 //3000000
+#define SLEEP_TIME 3000000//500000/2 //3000000
 
 #include "memoria.h"
 
@@ -198,8 +198,10 @@ void reset_virtual_memory(){
 }
 
 void memory_overflow(){
-	printf("MEMORIA ESTOURADA -- TRATAR?"); //IDEIA, PARAR E GRAVA-LA TODA EM UM ARQUIVO APOS ISSO RESETA-LA
+
+	printf("*MEMORIA ESTOURADA - DEVEMOS TRATAR?\n"); //IDEIA, PARAR E GRAVA-LA TODA EM UM ARQUIVO APOS ISSO RESETA-LA
 }
+
 void add_page_to_queue(int newPage){
 	shift_queue(0);
 	page_queue[FRAME_LIMIT - 1] = newPage;
@@ -291,12 +293,12 @@ void request_page(int process_id, int page_number){
 	int frame=FRAME_LIMIT-1;//por padrao, em caso de erro, remover o last frame da lista para a virtual
 	int freeframes = free_frames();
 
-	/*if( workingset_is_full(process_id) ){
+	if( workingset_is_full(process_id) ){
 		printf("... O working set do processo %i esta cheio\n",process_id);
 		frame=insert_pag_full_workingset(process_id, page_number);
 	}
 	//verifica se ha frames vazios
-	else*/ if ( freeframes> 0){
+	else if ( freeframes> 0){
 		printf("... Ainda existem frames vazios\n");
 		frame=insert_pag_empty_frames(process_id, page_number);
 	}
@@ -374,7 +376,7 @@ int insert_pag_full_workingset(int process_id, int page_number){
 		//se encontrarmos uma pagina alocada antes da sorteada continuamos procurando, e encontrarmos depois usamos aquele frame para substituicao
 		if (i > randompage) break; 
 	}
-	printf("I=%i > RAND=%i \nremoverFrame %i\n", i,randompage,remover);
+	printf("Removendo processo do Frame %i\n", remover);
 
 
 	//atualiza processos na virtual
@@ -398,7 +400,7 @@ int insert_pag_full_workingset(int process_id, int page_number){
 	}
 
 
-	/////////////////////////////////////////////////////////////////////////
+	refresh_LRUF(remover);
 	
 	//COPIA PARA A MEMORIA VIRTUAL O FRAME Q SAIRA
 	virtual_memory[0] = main_memory[ remover ];
