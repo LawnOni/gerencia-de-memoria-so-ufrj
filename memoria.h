@@ -7,8 +7,7 @@
 #include	<pthread.h>
 #include 	<sched.h>
 #include 	<stdbool.h>
-
-//#include 	<time.h>
+#include 	<time.h>
 //#include	<sys/timeb.h>
 //#include <sys/wait.h>
 
@@ -41,12 +40,12 @@
 #define ANSI_BG_WHITE   "\x1b[47m"
 
 
-#define FRAME_LIMIT 16 //64*MULTIPLUS //main_memory_size //64
+#define FRAME_LIMIT 6 //64*MULTIPLUS //main_memory_size //64
 #define MAIN_MEMORY_SIZE FRAME_LIMIT //64
 #define VIRTUAL_MEMORY_SIZE 4*FRAME_LIMIT //NAOSEIQTO
 #define THREAD_LIMIT 8//20*MULTIPLUS //20
-#define PAGE_LIMIT 10//50*MULTIPLUS //50
-#define WORKSET_LIMIT 4//PAGE_LIMIT //PARA TESTES //4
+#define PAGE_LIMIT 4//50*MULTIPLUS //50
+#define WORKSET_LIMIT 2//PAGE_LIMIT //PARA TESTES //4
 
 
 struct Page{
@@ -93,6 +92,7 @@ int page_queue[FRAME_LIMIT];
 void print_memories();
 void reset_main_memory();
 void reset_virtual_memory();
+int free_frames();
 
 //process functions
 void request_page(int process_id, int page_number);
@@ -105,7 +105,8 @@ void print_workingset(int process_id);
 bool using_all_working_set(int process_id);
 int insert_pag_empty_frames(int process_id, int page_number);
 int insert_pag_full_memory(int process_id, int page_number);
-
+int insert_pag_full_workingset(int process_id, int page_number);
+bool workingset_is_full(int process_id);
 
 //Queue functions
 void add_page_to_queue(int newPage);
