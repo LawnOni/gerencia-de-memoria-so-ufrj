@@ -273,7 +273,7 @@ void print_LRUF(){
 
 void print_workingset(int process_id){
 	int i;
-	printf("Paginas do processo %i esta alocado nos seguintes frames: ",process_id);
+	printf("Paginas do processo %2i esta alocado nos seguintes frames: ",process_id);
 	for (i = 0; i < PAGE_LIMIT; i++) if (process_list[process_id].works.frames[i]==-1) printf(" %2i",process_list[process_id].works.frames[i]);
 									else printf(ANSI_INVERSE_ON" %2i"ANSI_COLOR_RESET,process_list[process_id].works.frames[i]);
 	printf("\n");
