@@ -14,7 +14,7 @@ clean:
 	rm a.out memoria memoria.out
 
 gcc:	
-	@gcc memoria.c -o memoria.out -lpthread
+	@gcc memoria.c -o memoria.out -lpthread -w
 
 guake_sublime:
 	@gcc memoria.c -o memoria.out -lpthread	

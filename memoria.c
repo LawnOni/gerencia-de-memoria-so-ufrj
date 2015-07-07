@@ -288,8 +288,6 @@ bool using_all_working_set(int process_id){
 }
 
 void request_page(int process_id, int page_number){
-	int i,j;
-	bool faz=true;
 	int frame=FRAME_LIMIT-1;//por padrao, em caso de erro, remover o last frame da lista para a virtual
 	int freeframes = free_frames();
 
@@ -318,8 +316,7 @@ void request_page(int process_id, int page_number){
 }
 
 int insert_pag_empty_frames(int process_id, int page_number){
-	int i,j;
-	bool faz=true;
+	int i;
 	int frame=FRAME_LIMIT-1;//por padrao, em caso de erro, remover o last frame da lista para a virtual
 
 	for (i = 0; i < FRAME_LIMIT; i++){
@@ -332,9 +329,8 @@ int insert_pag_empty_frames(int process_id, int page_number){
 }
 
 int insert_pag_full_memory(int process_id, int page_number){
-	int i,j;
+	int i;
 	int frame=FRAME_LIMIT-1;//por padrao, em caso de erro, remover o last frame da lista para a virtual
-	int recent = recent_frame[0];
 	int last = FRAME_LIMIT-1; //ultimo da fila, ira para o inicio da fila, será primeiro
 
 	//atualiza processos na virtual
@@ -362,7 +358,7 @@ int insert_pag_full_memory(int process_id, int page_number){
 }
 
 int insert_pag_full_workingset(int process_id, int page_number){
-	int i,j;
+	int i;
 	int remover = FRAME_LIMIT-1;//POR PADRAO COLOCA NA ULTIMA POSICAO 
 	int recent = -1;
 	int index = -1;

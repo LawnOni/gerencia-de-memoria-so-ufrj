@@ -83,7 +83,6 @@ int recent_frame[FRAME_LIMIT] = { [0 ... FRAME_LIMIT-1 ] = -1 };
 int number_of_free_frames = FRAME_LIMIT;
 int number_of_non_free_frames = 0;
 
-
 struct Page main_memory[FRAME_LIMIT];
 struct Page virtual_memory[VIRTUAL_MEMORY_SIZE];
 
@@ -123,6 +122,3 @@ void print_queue_details();
 int get_queue_offset(int page);
 void print_LRUF();
 int refresh_LRUF(int old_frame_in_memory);
-
-
-
