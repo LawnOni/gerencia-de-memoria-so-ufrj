@@ -3,7 +3,7 @@
 //T2 SO 2015.1 ProfValeria
 
 #define MULTIPLUS 1 //multiplicador para alterar facilmente/proporcionalmente o tamanho das threads e memorias 
-#define SLEEP_TIME 3000000//500000/2 //3000000
+#define SLEEP_TIME 1000000//500000/2 //3000000
 
 #include "memoria.h"
 
@@ -90,7 +90,7 @@ void print_memories(){
 	number_of_non_free_frames = 0;
 	number_of_free_frames = 0;
 
-	printf("\tMEMORIA 1\t\t\t\t\t\t\tMEMORIA 2\n");
+	printf("\tMEMORIA PRINCIPAL\t\t\t\t\t\t\tMEMORIA SECUNDARIA\n");
 		
 
 	printf("______________________________________\t\t_______________________________________________________________________________________\n");
